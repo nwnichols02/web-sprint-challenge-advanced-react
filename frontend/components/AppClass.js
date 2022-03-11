@@ -14,11 +14,33 @@ export default class AppClass extends React.Component {
 
   state = initialState;
 
-  onSubmit = () => {
+  onSubmit = (evt) => {
+    evt.preventDefault();
+    const infoToSend = { 
+      "x": this.state.grid.x, 
+      "y": this.state.grid.y, 
+      "steps": this.state.counter, 
+      "email": this.state.email }
+      // console.log(infoToSend);
     // this needs to be able to send x, y, counter, and email to the api
-    // axios.post(URL, )
+    // x=1-3, y=1-3, steps > 0, email= needs to be valid
+    axios.post(URL, infoToSend)
+    .then(res => {
+      this.setState({...this.state, message: res.data.message})
+      this.setState({...this.state, email: '', })
+      // this.resetGrid();
+    })
+    .catch(err => {
+      this.setState({...this.state, message: err.response.data.message})
+    })
   }  
 
+  changeInput = (evt) => {
+    const {value} = evt.target
+    this.setState({...this.state,
+    email: value,
+    })
+  }
 
   moveUp = () => {
     if(this.state.grid.y > 1){
@@ -96,14 +118,6 @@ export default class AppClass extends React.Component {
           <div className={`${this.state.grid.x === 1 && this.state.grid.y === 3 ? 'square active' : 'square'}`}>{this.state.grid.x === 1 && this.state.grid.y === 3 ? "B" : ""}</div>
           <div className={`${this.state.grid.x === 2 && this.state.grid.y === 3 ? 'square active' : 'square'}`}>{this.state.grid.x === 2 && this.state.grid.y === 3 ? "B" : ""}</div>
           <div className={`${this.state.grid.x === 3 && this.state.grid.y === 3 ? 'square active' : 'square'}`}>{this.state.grid.x === 3 && this.state.grid.y === 3 ? "B" : ""}</div>
-          {/* <div className="square"></div>
-          <div className="square"></div>
-          <div className="square"></div>
-          <div className="square active">B</div>
-          <div className="square"></div>
-          <div className="square"></div>
-          <div className="square"></div>
-          <div className="square"></div> */}
         </div>
         <div className="info">
           <h3 id="message">{this.state.message}</h3>
@@ -116,7 +130,7 @@ export default class AppClass extends React.Component {
           <button onClick={this.resetGrid} id="reset">reset</button>
         </div>
         <form onSubmit={this.onSubmit}>
-          <input id="email" type="email" placeholder="type email"></input>
+          <input value={this.state.email} onChange={this.changeInput} id="email" type="email" placeholder="type email"></input>
           <input id="submit" type="submit"></input>
         </form>
       </div>
